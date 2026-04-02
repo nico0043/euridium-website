@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Euridium Intelligence — Financial Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#04060d; color:#eef2ff; font-family:'Syne',sans-serif; font-size:13px; line-height:1.5; width:1200px; margin:0 auto; padding:32px; }
+.mono { font-family:'JetBrains Mono',monospace; }
+.header { display:flex; align-items:center; justify-content:space-between; padding-bottom:20px; border-bottom:1px solid rgba(82,210,196,0.3); margin-bottom:28px; }
+.logo-wrap { display:flex; align-items:center; gap:14px; }
+.logo-hex { width:44px; height:44px; background:linear-gradient(135deg,#52d2c4,#2eb5a8); clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:#04060d; }
+.logo-name { font-size:20px; font-weight:800; color:#eef2ff; letter-spacing:0.04em; }
+.logo-sub { font-family:'JetBrains Mono',monospace; font-size:9px; color:#52d2c4; letter-spacing:0.22em; }
+.doc-title { font-size:16px; font-weight:700; color:#eef2ff; text-align:right; }
+.doc-meta { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(238,242,255,0.4); margin-top:4px; text-align:right; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px; }
+.grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:16px; }
+.card { background:#0a1220; border:1px solid rgba(255,255,255,0.07); border-radius:10px; padding:18px; position:relative; overflow:hidden; }
+.card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#52d2c4,transparent); }
+.card.gold::before { background:linear-gradient(90deg,#e8b84b,transparent); }
+.card.blue::before { background:linear-gradient(90deg,#4a8fff,transparent); }
+.card-title { font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:500; letter-spacing:0.2em; color:#52d2c4; text-transform:uppercase; margin-bottom:14px; }
+.card-title.gold { color:#e8b84b; }
+.card-title.blue { color:#4a8fff; }
+.kpi-big { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:600; color:#52d2c4; line-height:1; margin-bottom:4px; }
+.kpi-label { font-size:11px; color:rgba(238,242,255,0.5); }
+.kpi-sub { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(238,242,255,0.3); margin-top:3px; }
+.divider { height:1px; background:rgba(255,255,255,0.06); margin:10px 0; }
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th { font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:500; letter-spacing:0.14em; color:rgba(238,242,255,0.35); text-align:left; padding:6px 10px; border-bottom:1px solid rgba(255,255,255,0.07); }
+.data-table th.r { text-align:right; }
+.data-table td { padding:7px 10px; font-size:11.5px; border-bottom:1px solid rgba(255,255,255,0.04); vertical-align:middle; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tr:nth-child(even) td { background:rgba(255,255,255,0.015); }
+.val { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; text-align:right; }
+.lbl { color:rgba(238,242,255,0.75); font-weight:500; }
+.total td { font-weight:700; background:rgba(82,210,196,0.06) !important; border-top:1px solid rgba(82,210,196,0.2); }
+.prog-row { margin-bottom:10px; }
+.prog-header { display:flex; justify-content:space-between; margin-bottom:4px; }
+.prog-label { font-size:11px; color:rgba(238,242,255,0.7); font-weight:500; }
+.prog-val { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; }
+.prog-track { height:5px; background:rgba(255,255,255,0.06); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; border-radius:3px; }
+.mrr-chart { display:flex; align-items:flex-end; gap:5px; height:80px; }
+.bar-w { flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.bar { width:100%; border-radius:3px 3px 0 0; min-height:3px; }
+.bar-lbl { font-family:'JetBrains Mono',monospace; font-size:7px; color:rgba(238,242,255,0.3); }
+.donut-wrap { display:flex; align-items:center; gap:18px; }
+.legend { flex:1; display:flex; flex-direction:column; gap:7px; }
+.li { display:flex; align-items:center; gap:7px; }
+.li-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.li-lbl { font-size:11px; color:rgba(238,242,255,0.65); flex:1; }
+.li-val { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; }
+.year-cols { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+.yr { padding:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:8px; text-align:center; }
+.yr.now { border-color:rgba(82,210,196,0.3); background:rgba(82,210,196,0.05); }
+.yr-lbl { font-family:'JetBrains Mono',monospace; font-size:8.5px; color:rgba(238,242,255,0.4); letter-spacing:0.1em; margin-bottom:6px; }
+.yr-rev { font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:600; color:#52d2c4; margin-bottom:3px; }
+.yr-cl { font-size:10px; color:rgba(238,242,255,0.4); margin-bottom:4px; }
+.badge { display:inline-block; padding:2px 7px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:8.5px; font-weight:500; }
+.bt { background:rgba(82,210,196,0.12); color:#52d2c4; border:1px solid rgba(82,210,196,0.25); }
+.bg { background:rgba(232,184,75,0.12); color:#e8b84b; border:1px solid rgba(232,184,75,0.25); }
+.br { background:rgba(240,78,78,0.12); color:#f04e4e; border:1px solid rgba(240,78,78,0.25); }
+.footer { margin-top:16px; padding-top:12px; border-top:1px solid rgba(82,210,196,0.15); display:flex; justify-content:space-between; }
+.footer-txt { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(238,242,255,0.2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-wrap">
+    <div class="logo-hex">EI</div>
+    <div>
+      <div class="logo-name">EURIDIUM INTELLIGENCE</div>
+      <div class="logo-sub">AI GOVERNANCE PLATFORM · BRUSSELS · FARI ACCELERATOR 2025</div>
+    </div>
+  </div>
+  <div>
+    <div class="doc-title">Financial Overview</div>
+    <div class="doc-meta">PRE-SEED STAGE · CONSERVATIVE BASE CASE · FIGURES IN EUR</div>
+  </div>
+</div>
+
+<!-- ROW 1: 3 KPI CARDS -->
+<div class="grid-3">
+
+  <div class="card">
+    <div class="card-title">Unit Economics</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div>
+        <div class="kpi-big">€1,394</div>
+        <div class="kpi-label">Blended ARPU/mo</div>
+        <div class="kpi-sub">60% S · 30% P · 10% E</div>
+      </div>
+      <div>
+        <div class="kpi-big" style="color:#e8b84b;">61:1</div>
+        <div class="kpi-label">LTV : CAC ratio</div>
+        <div class="kpi-sub">Benchmark: ≥3:1 healthy</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div>
+        <div class="mono" style="font-size:16px;font-weight:600;color:#52d2c4;">€900</div>
+        <div class="kpi-label" style="font-size:10px;">CAC Year 1</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:16px;font-weight:600;color:#52d2c4;">€55,760</div>
+        <div class="kpi-label" style="font-size:10px;">LTV</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:16px;font-weight:600;color:#52d2c4;">57%</div>
+        <div class="kpi-label" style="font-size:10px;">Gross margin Y1</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:16px;font-weight:600;color:#52d2c4;">1.1 mo</div>
+        <div class="kpi-label" style="font-size:10px;">Payback period</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Pricing Tiers</div>
+    <table class="data-table">
+      <thead><tr><th>Tier</th><th>Segment</th><th class="r">€/month</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge bt">Starter</span></td><td class="lbl">AI Startups</td><td class="val" style="color:#52d2c4;">€490</td></tr>
+        <tr><td><span class="badge bg">Professional</span></td><td class="lbl">Scale-ups / Consulting</td><td class="val" style="color:#e8b84b;">€1,500</td></tr>
+        <tr><td><span class="badge br">Enterprise</span></td><td class="lbl">Large Orgs / Institutions</td><td class="val" style="color:#f04e4e;">€5–8K</td></tr>
+      </tbody>
+    </table>
+    <div class="divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div>
+        <div class="mono" style="font-size:14px;font-weight:600;color:#52d2c4;">57%</div>
+        <div class="kpi-label" style="font-size:10px;">Gross margin Y1</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:14px;font-weight:600;color:#52d2c4;">75–80%</div>
+        <div class="kpi-label" style="font-size:10px;">Target Year 3</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:14px;font-weight:600;color:#e8b84b;">2.5%</div>
+        <div class="kpi-label" style="font-size:10px;">Monthly churn target</div>
+      </div>
+      <div>
+        <div class="mono" style="font-size:14px;font-weight:600;color:#52d2c4;">>115%</div>
+        <div class="kpi-label" style="font-size:10px;">Target NRR</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card gold">
+    <div class="card-title gold">Use of Funds — €150K–€300K Target</div>
+    <div class="donut-wrap">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#0a1220" stroke-width="20"/>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#52d2c4" stroke-width="20" stroke-dasharray="105 134" stroke-dashoffset="60" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#4a8fff" stroke-width="20" stroke-dasharray="38 201" stroke-dashoffset="-45" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#e8b84b" stroke-width="20" stroke-dasharray="30 209" stroke-dashoffset="-83" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#2eb5a8" stroke-width="20" stroke-dasharray="18 221" stroke-dashoffset="-113" transform="rotate(-90 60 60)"/>
+        <circle cx="60" cy="60" r="38" fill="none" stroke="#f04e4e" stroke-width="20" stroke-dasharray="38 201" stroke-dashoffset="-131" transform="rotate(-90 60 60)"/>
+        <text x="60" y="56" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="600" fill="#e8b84b">€159K</text>
+        <text x="60" y="68" text-anchor="middle" font-family="JetBrains Mono" font-size="8" fill="rgba(238,242,255,0.4)">target</text>
+      </svg>
+      <div class="legend">
+        <div class="li"><div class="li-dot" style="background:#52d2c4;"></div><div class="li-lbl">Tech dev.</div><div class="li-val">€70K</div></div>
+        <div class="li"><div class="li-dot" style="background:#4a8fff;"></div><div class="li-lbl">Policy analyst</div><div class="li-val">€25K</div></div>
+        <div class="li"><div class="li-dot" style="background:#e8b84b;"></div><div class="li-lbl">Biz dev.</div><div class="li-val">€20K</div></div>
+        <div class="li"><div class="li-dot" style="background:#2eb5a8;"></div><div class="li-lbl">Infrastructure</div><div class="li-val">€12K</div></div>
+        <div class="li"><div class="li-dot" style="background:#f04e4e;"></div><div class="li-lbl">Reserve (6mo)</div><div class="li-val">€25K</div></div>
+        <div class="li"><div class="li-dot" style="background:#888;"></div><div class="li-lbl">Legal / corp.</div><div class="li-val">€7K</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROW 2: MRR CHART + P&L + INVESTOR -->
+<div class="grid-2">
+
+  <div class="card">
+    <div class="card-title">MRR Projection — Year 1</div>
+    <div class="mrr-chart">
+      <div class="bar-w"><div class="bar" style="height:1.6%;background:rgba(82,210,196,0.3);"></div><div class="bar-lbl">M1</div></div>
+      <div class="bar-w"><div class="bar" style="height:1.6%;background:rgba(82,210,196,0.34);"></div><div class="bar-lbl">M2</div></div>
+      <div class="bar-w"><div class="bar" style="height:1.6%;background:rgba(82,210,196,0.38);"></div><div class="bar-lbl">M3</div></div>
+      <div class="bar-w"><div class="bar" style="height:10%;background:rgba(82,210,196,0.46);"></div><div class="bar-lbl">M4</div></div>
+      <div class="bar-w"><div class="bar" style="height:13.2%;background:rgba(82,210,196,0.52);"></div><div class="bar-lbl">M5</div></div>
+      <div class="bar-w"><div class="bar" style="height:16.5%;background:rgba(82,210,196,0.58);"></div><div class="bar-lbl">M6</div></div>
+      <div class="bar-w"><div class="bar" style="height:24.8%;background:rgba(82,210,196,0.65);"></div><div class="bar-lbl">M7</div></div>
+      <div class="bar-w"><div class="bar" style="height:33.1%;background:rgba(82,210,196,0.72);"></div><div class="bar-lbl">M8</div></div>
+      <div class="bar-w"><div class="bar" style="height:41.5%;background:rgba(82,210,196,0.79);"></div><div class="bar-lbl">M9</div></div>
+      <div class="bar-w"><div class="bar" style="height:47.4%;background:rgba(82,210,196,0.86);"></div><div class="bar-lbl">M10</div></div>
+      <div class="bar-w"><div class="bar" style="height:54.2%;background:rgba(82,210,196,0.93);"></div><div class="bar-lbl">M11</div></div>
+      <div class="bar-w"><div class="bar" style="height:100%;background:#52d2c4;"></div><div class="bar-lbl">M12</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);">
+      <div><div class="mono" style="font-size:18px;font-weight:600;color:#52d2c4;">€29,510</div><div class="kpi-label" style="font-size:10px;">MRR end Year 1</div></div>
+      <div style="text-align:center;"><div class="mono" style="font-size:18px;font-weight:600;color:#52d2c4;">€355,000</div><div class="kpi-label" style="font-size:10px;">ARR end Year 1</div></div>
+      <div style="text-align:right;"><div class="mono" style="font-size:18px;font-weight:600;color:#e8b84b;">~26</div><div class="kpi-label" style="font-size:10px;">Active clients M12</div></div>
+    </div>
+    <div class="divider"></div>
+    <div class="year-cols">
+      <div class="yr now"><div class="yr-lbl">YEAR 1 · 2025</div><div class="yr-rev">€355K</div><div class="yr-cl">~26 clients</div><div class="mono" style="font-size:10px;color:#f04e4e;">(€206K) EBITDA</div></div>
+      <div class="yr"><div class="yr-lbl">YEAR 2 · 2026</div><div class="yr-rev" style="color:#e8b84b;">€1.2M</div><div class="yr-cl">~99 clients</div><div class="mono" style="font-size:10px;color:#e8b84b;">Break-even</div></div>
+      <div class="yr"><div class="yr-lbl">YEAR 3 · 2027</div><div class="yr-rev">€2.4M</div><div class="yr-cl">~173 clients</div><div class="mono" style="font-size:10px;color:#52d2c4;">+€408K EBITDA</div></div>
+    </div>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title blue">Investor Snapshot</div>
+    <table class="data-table" style="margin-bottom:12px;">
+      <tbody>
+        <tr><td class="lbl">Round type</td><td class="val"><span class="badge bt">Pre-seed</span></td></tr>
+        <tr><td class="lbl">Target raise</td><td class="val" style="color:#e8b84b;">€150,000–€300,000</td></tr>
+        <tr><td class="lbl">Pre-money valuation</td><td class="val" style="color:#52d2c4;">€400,000 (indicative)</td></tr>
+        <tr><td class="lbl">Target dilution</td><td class="val">10–15%</td></tr>
+        <tr><td class="lbl">Revenue last 12 months</td><td class="val" style="color:rgba(238,242,255,0.4);">€0 — pre-revenue</td></tr>
+        <tr><td class="lbl">Monthly burn (pre-rev.)</td><td class="val" style="color:#f04e4e;">~€8,350/month</td></tr>
+        <tr><td class="lbl">Runway (€200K raise)</td><td class="val" style="color:#52d2c4;">~24 months</td></tr>
+        <tr class="total"><td class="lbl">ARR Year 3 target</td><td class="val" style="color:#52d2c4;">€2,400,000</td></tr>
+      </tbody>
+    </table>
+    <div style="padding:10px 12px;background:rgba(82,210,196,0.05);border:1px solid rgba(82,210,196,0.15);border-radius:8px;margin-bottom:10px;">
+      <div class="mono" style="font-size:8px;color:#52d2c4;letter-spacing:0.14em;margin-bottom:4px;">MARKET CONTEXT</div>
+      <div style="font-size:10.5px;color:rgba(238,242,255,0.5);line-height:1.55;">AI Governance market: $890M (2024) → $5.8B by 2029 at 45.3% CAGR (MarketsandMarkets). EU AI Act full enforcement Aug 2026 creates immediate, non-negotiable market catalyst.</div>
+    </div>
+    <div style="padding:10px 12px;background:rgba(232,184,75,0.05);border:1px solid rgba(232,184,75,0.15);border-radius:8px;">
+      <div class="mono" style="font-size:8px;color:#e8b84b;letter-spacing:0.14em;margin-bottom:4px;">STAGE &amp; TRACTION</div>
+      <div style="font-size:10.5px;color:rgba(238,242,255,0.5);line-height:1.55;">Functional 7-module prototype · euridium.eu live · FARI AI Accelerator (ULB/VUB) · Market gap validated by ULB researchers · Business model and GTM fully developed.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-txt">EURIDIUM INTELLIGENCE · <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b0ded9d3dfdcd1c3f0d5c5c2d9d4d9c5dd9ed5c5">[email&#160;protected]</a> · euridium.eu · linkedin.com/company/euridium-intelligence</div>
+  <div class="footer-txt">Disclaimer: Projections are estima

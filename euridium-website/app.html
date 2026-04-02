@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euridium Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --void:#03050c;--deep:#060b16;--surface:#0a1220;--raised:#0f1a2e;
+  --border:rgba(255,255,255,0.07);--border-glow:rgba(82,210,196,0.25);
+  --accent:#52d2c4;--accent-dim:rgba(82,210,196,0.12);
+  --gold:#e8b84b;--red:#f04e4e;--blue:#4a8fff;
+  --text:#eef2ff;--muted:rgba(238,242,255,0.58);
+  --faint:rgba(238,242,255,0.22);--fainter:rgba(238,242,255,0.1);
+  --font-d:'Syne',sans-serif;--font-m:'JetBrains Mono',monospace;
+  --sidebar-w:240px;
+}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--void);color:var(--text);font-family:var(--font-d);font-size:14px;}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:rgba(82,210,196,0.2);border-radius:2px;}
+
+/* ── LAYOUT ── */
+.app{display:flex;height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--deep);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:relative;z-index:100;
+  overflow:hidden;
+}
+
+/* Logo */
+.sidebar-logo{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border);
+}
+.logo-mark{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+.logo-hex{
+  width:34px;height:34px;
+  background:linear-gradient(135deg,var(--accent),#2eb5a8);
+  clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-m);font-size:11px;font-weight:700;color:#04060d;
+  flex-shrink:0;
+}
+.logo-name{font-size:15px;font-weight:800;color:var(--text);letter-spacing:0.07em;}
+.logo-sub{font-family:var(--font-m);font-size:8px;color:var(--faint);letter-spacing:0.2em;padding-left:44px;}
+
+/* Nav */
+.sidebar-nav{flex:1;padding:12px 10px 0;overflow-y:auto;}
+.nav-section-label{
+  padding:14px 12px 6px;
+  font-family:var(--font-m);font-size:8px;font-weight:500;
+  letter-spacing:0.2em;color:var(--fainter);text-transform:uppercase;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  cursor:pointer;margin-bottom:2px;
+  transition:all 0.15s;border:1px solid transparent;
+  font-size:13px;font-weight:500;color:var(--muted);
+  text-decoration:none;user-select:none;position:relative;
+}
+.nav-item:hover{background:rgba(255,255,255,0.04);color:var(--text);border-color:var(--border);}
+.nav-item.active{background:var(--accent-dim);border-color:var(--border-glow);color:var(--accent);}
+.nav-item.active::after{content:'';position:absolute;right:10px;top:50%;transform:translateY(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;padding:1px 6px;border-radius:10px;background:rgba(232,184,75,0.15);color:var(--gold);font-family:var(--font-m);font-size:8.5px;font-weight:600;}
+.nav-new{margin-left:auto;padding:1px 6px;border-radius:10px;background:rgba(82,210,196,0.12);color:var(--accent);font-family:var(--font-m);font-size:8px;font-weight:600;letter-spacing:0.08em;}
+
+/* Sidebar footer */
+.sidebar-footer{
+  padding:14px 18px;
+  border-top:1px solid var(--border);
+}
+.status-row{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:blink 2.2s ease infinite;flex-shrink:0;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.status-text{font-family:var(--font-m);font-size:9px;color:var(--faint);letter-spacing:0.1em;}
+.status-time{font-family:var(--font-m);font-size:9px;color:var(--fainter);}
+.sidebar-user{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border);}
+.user-avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;object-position:center top;border:1.5px solid rgba(82,210,196,0.3);flex-shrink:0;}
+.user-name{font-size:12px;font-weight:600;color:var(--text);}
+.user-role{font-family:var(--font-m);font-size:8.5px;color:var(--faint);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
+
+/* Topbar */
+.topbar{
+  height:54px;flex-shrink:0;
+  background:rgba(6,11,22,0.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+  padding:0 28px;position:relative;z-index:50;
+}
+.breadcrumb{display:flex;align-items:center;gap:6px;}
+.bc-root{font-family:var(--font-m);font-size:10px;color:var(--faint);}
+.bc-sep{color:var(--fainter);font-family:var(--font-m);font-size:11px;}
+.bc-current{font-size:13px;font-weight:600;color:var(--text);}
+.topbar-spacer{flex:1;}
+.topbar-search{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 12px;border-radius:7px;
+  background:var(--surface);border:1px solid var(--border);
+  width:200px;transition:border-color 0.15s;
+}
+.topbar-search:focus-within{border-color:rgba(82,210,196,0.3);}
+.topbar-search input{background:none;border:none;outline:none;font-family:var(--font-m);font-size:11px;color:var(--text);width:100%;}
+.topbar-search input::placeholder{color:var(--faint);}
+.topbar-divider{width:1px;height:20px;background:var(--border);}
+.topbar-chip{padding:5px 10px;border-radius:20px;font-family:var(--font-m);font-size:9px;font-weight:500;letter-spacing:0.07em;cursor:pointer;}
+.chip-live{background:var(--accent-dim);color:var(--accent);border:1px solid var(--border-glow);}
+.chip-alert{background:rgba(240,78,78,0.1);color:var(--red);border:1px solid rgba(240,78,78,0.25);}
+
+/* Content */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;}
+.page{display:none;animation:fadeIn 0.25s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── PAGE STYLES ── */
+.page-wrap{padding:28px 32px;}
+.page-header{margin-bottom:26px;display:flex;align-items:flex-start;justify-content:space-between;}
+.page-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.01em;}
+.page-subtitle{font-family:var(--font-m);font-size:10.5px;color:var(--muted);margin-top:5px;}
+.page-actions{display:flex;gap:8px;padding-top:2px;}
+.btn{padding:7px 14px;border-radius:7px;font-family:var(--font-m);font-size:10px;font-weight:500;letter-spacing:0.06em;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--surface);color:var(--muted);}
+.btn:hover{background:var(--raised);color:var(--text);}
+.btn-primary{background:var(--accent-dim);border-color:var(--border-glow);color:var(--accent);}
+.btn-primary:hover{background:rgba(82,210,196,0.2);}
+
+/* Grid utilities */
+.grid{display:grid;gap:16px;}
+.g2{grid-template-columns:repeat(2,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.2s;}
+.card:hover{border-color:rgba(255,255,255,0.1);}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border);}
+.card-title{font-size:11.5px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px;}
+.card-meta{font-family:var(--font-m);font-size:9px;color:var(--faint);}
+.card-body{padding:18px;}
+
+/* KPI */
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kpi-c,var(--accent));opacity:0.8;}
+.kpi-label{font-family:var(--font-m);font-size:9px;font-weight:500;letter-spacing:0.16em;color:var(--faint);text-transform:uppercase;margin-bottom:8px;}
+.kpi-val{font-family:var(--font-m);font-size:30px;font-weight:600;color:var(--kpi-c,var(--accent));line-height:1;}
+.kpi-sub{font-family:var(--font-m);font-size:9.5px;color:var(--faint);margin-top:6px;}
+.kpi-bg{position:absolute;right:14px;bottom:6px;font-family:var(--font-m);font-size:42px;font-weight:700;color:var(--kpi-c,var(--accent));opacity:0.05;line-height:1;pointer-events:none;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-family:var(--font-m);font-size:9px;font-weight:500;}
+.b-critical{background:rgba(240,78,78,0.12);color:var(--red);border:1px solid rgba(240,78,78,0.25);}
+.b-high{background:rgba(232,184,75,0.12);color:var(--gold);border:1px solid rgba(232,184,75,0.25);}
+.b-medium{background:rgba(74,143,255,0.12);color:var(--blue);border:1px solid rgba(74,143,255,0.25);}
+.b-low{background:rgba(82,210,196,0.1);color:var(--accent);border:1px solid var(--border-glow);}
+
+/* Progress */
+.prog-row{margin-bottom:12px;}
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.prog-label{font-size:12px;font-weight:500;color:var(--text);}
+.prog-val{font-family:var(--font-m);font-size:11px;font-weight:600;}
+.prog-track{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.8s ease;}
+
+/* Alert items */
+.alert-item{padding:13px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:12px;}
+.alert-item:last-child{border-bottom:none;}
+.alert-stripe{width:3px;border-radius:2px;flex-shrink:0;align-self:stretch;}
+.alert-title{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4;}
+.alert-desc{font-size:11.5px;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+.alert-meta{display:flex;align-items:center;gap:8px;}
+.alert-time{font-family:var(--font-m);font-size:9px;color:var(--faint);}
+
+/* Blog */
+.blog-card{padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.18s;display:flex;gap:18px;}
+.blog-card:hover{border-color:var(--border-glow);transform:translateY(-2px);}
+.blog-num{font-family:var(--font-m);font-size:26px;font-weight:600;color:var(--faint);line-height:1;flex-shrink:0;width:30px;}
+.blog-category{font-family:var(--font-m);font-size:8.5px;letter-spacing:0.16em;color:var(--accent);margin-bottom:7px;}
+.blog-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:7px;line-height:1.35;}
+.blog-summary{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;}
+.blog-meta{display:flex;gap:12px;align-items:center;}
+.blog-date{font-family:var(--font-m);font-size:9px;color:var(--faint);}
+.blog-arrow{color:var(--accent);font-size:16px;display:flex;align-items:center;padding-top:2px;opacity:0;transition:opacity 0.15s;margin-left:auto;}
+.blog-card:hover .blog-arrow{opacity:1;}
+
+/* Contact */
+.contact-form{display:flex;flex-direction:column;gap:14px;max-width:560px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-family:var(--font-m);font-size:9.5px;color:var(--faint);letter-spacing:0.14em;text-transform:uppercase;}
+.form-input,.form-textarea{padding:11px 14px;background:var(--raised);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-m);font-size:12px;outline:none;transition:border-color 0.15s;resize:none;}
+.form-input:focus,.form-textarea:focus{border-color:rgba(82,210,196,0.35);}
+.form-input::placeholder,.form-textarea::placeholder{color:var(--faint);}
+.form-textarea{height:120px;}
+.form-submit{padding:12px 24px;background:var(--accent-dim);border:1px solid var(--border-glow);border-radius:8px;font-family:var(--font-m);font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.1em;cursor:pointer;transition:all 0.18s;align-self:flex-start;}
+.form-submit:hover{background:rgba(82,210,196,0.2);}
+
+/* Index */
+.index-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.index-flag{font-size:22px;flex-shrink:0;}
+.index-info{flex:1;}
+.index-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.index-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;}
+.index-fill{height:100%;border-radius:3px;}
+.index-score{font-family:var(--font-m);font-size:18px;font-weight:600;min-width:36px;text-align:right;}
+
+/* About */
+.about-photo{width:180px;height:180px;border-radius:50%;object-fit:cover;object-position:center top;border:2.5px solid var(--accent);display:block;}
+
+/* ── COMING SOON ── */
+.coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 32px;text-align:center;}
+.cs-icon{font-size:48px;margin-bottom:20px;}
+.cs-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.cs-sub{font-family:var(--font-m);font-size:11px;color:var(--faint);letter-spacing:0.1em;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-hex">EI</div>
+      <div class="logo-name">EURIDIUM</div>
+    </div>
+    <div class="logo-sub">INTELLIGENCE PLATFORM</div>
+  </div>
+
+  <div class="sidebar-nav">
+    <div class="nav-section-label">Main</div>
+
+    <a class="nav-item active" onclick="navigate('home',this)" href="#">
+      <span class="nav-icon">⬡</span> Home
+    </a>
+    <a class="nav-item" onclick="navigate('index',this)" href="#">
+      <span class="nav-icon">◬</span> Governance Index
+      <span class="nav-badge">Q1 2025</span>
+    </a>
+    <a class="nav-item" onclick="navigate('blog',this)" href="#">
+      <span class="nav-icon">◈</span> Insights
+      <span class="nav-new">NEW</span>
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px;">Company</div>
+
+    <a class="nav-item" onclick="navigate('about',this)" href="#">
+      <span class="nav-icon">◉</span> About
+    </a>
+    <a class="nav-item" onclick="navigate('contact',this)" href="#">
+      <span class="nav-icon">✉</span> Contact
+    </a>
+
+    <div class="nav-section-label" style="margin-top:8px;">Platform</div>
+
+    <a class="nav-item" href="dashboard.html">
+      <span class="nav-icon">⊞</span> Intelligence Dashboard ↗
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="status-row">
+      <div class="status-dot"></div>
+      <span class="status-text">LIVE · euridium.eu</span>
+    </div>
+    <div class="status-time" id="clock"></div>
+    <div class="sidebar-user">
+      <img src="9Z8A0709-modified.png" alt="NH" class="user-avatar">
+      <div>
+        <div class="user-name">Nicolas H.</div>
+        <div class="user-role">FOUNDER & CEO</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <span class="bc-root">Euridium</span>
+      <span class="bc-sep">/</span>
+      <span class="bc-current" id="bc-current">Home</span>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-search">
+      <span style="color:var(--faint);font-size:11px;">⌕</span>
+      <input type="text" placeholder="Search regulations, countries...">
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-chip chip-alert">⚑ EU AI Act · Aug 2026</div>
+    <div class="topbar-chip chip-live">● FARI Accelerator</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ HOME ══ -->
+    <div class="page active" id="page-home">
+      <div class="page-wrap">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Welcome to Euridium Intelligence</div>
+            <div class="page-subtitle">AI Governance Intelligence Platform · Brussels · 2025</div>
+          </div>
+          <div class="page-actions">
+            <div class="btn btn-primary" onclick="navigate('contact', document.querySelector('[onclick*=contact]'))">Get in Touch →</div>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid g4" style="margin-bottom:20px;">
+          <div class="kpi" style="--kpi-c:var(--accent)">
+            <div class="kpi-label">Jurisdictions</div>
+            <div class="kpi-val">80+</div>
+            <div class="kpi-sub">Actively monitored</div>
+            <div class="kpi-bg">80</div>
+          </div>
+          <div class="kpi" style="--kpi-c:var(--red)">
+            <div class="kpi-label">Market Size 2029</div>
+            <div class="kpi-val">$5.8B</div>
+            <div class="kpi-sub">AI governance market</div>
+            <div class="kpi-bg">5.8</div>
+          </div>
+          <div class="kpi" style="--kpi-c:var(--gold)">
+            <div class="kpi-label">Regulatory Growth</div>
+            <div class="kpi-val">×9</div>
+            <div class="kpi-sub">Since 2019 (OECD)</div>
+            <div class="kpi-bg">×9</div>
+          </div>
+          <div class="kpi" style="--kpi-c:var(--blue)">
+            <div class="kpi-label">EU AI Act</div>
+            <div class="kpi-val">2026</div>
+            <div class="kpi-sub">Full enforcement</div>
+            <div class="kpi-bg">26</div>
+          </div>
+        </div>
+
+        <!-- Map + Alerts -->
+        <div class="grid" style="grid-template-columns:1fr 340px;margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">🌐 Global AI Governance Map</div>
+              <div class="card-meta">Key jurisdictions</div>
+            </div>
+            <div class="card-body" style="padding:0;position:relative;">
+              <div style="background:linear-gradient(180deg,#060d1c,#04060d);height:280px;position:relative;overflow:hidden;">
+                <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(82,210,196,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(82,210,196,0.04) 1px,transparent 1px);background-size:36px 36px;"></div>
+                <svg viewBox="0 0 800 360" style="width:100%;height:100%;">
+                  <path d="M80,40 L180,35 L200,55 L210,90 L195,130 L175,150 L145,160 L120,145 L90,120 L70,80 Z" fill="#0d1e38" stroke="rgba(82,210,196,0.15)" stroke-width="1"/>
+                  <path d="M155,170 L205,165 L220,195 L215,250 L195,285 L165,280 L148,255 L145,210 Z" fill="#0d1e38" stroke="rgba(82,210,196,0.15)" stroke-width="1"/>
+                  <path d="M355,30 L430,28 L445,55 L430,75 L400,80 L365,70 L348,50 Z" fill="#0e2438" stroke="rgba(82,210,196,0.5)" stroke-width="1.5"/>
+                  <path d="M360,88 L430,82 L445,130 L430,195 L395,215 L360,200 L345,160 L348,115 Z" fill="#0d1e38" stroke="rgba(82,210,196,0.15)" stroke-width="1"/>
+                  <path d="M440,20 L640,18 L660,55 L640,70 L580,75 L500,72 L448,60 Z" fill="#0d1e38" stroke="rgba(82,210,196,0.15)" stroke-width="1"/>
+                  <path d="M540,70 L635,68 L648,105 L615,130 L560,132 L535,108 Z" fill="#0f2540" stroke="rgba(240,78,78,0.35)" stroke-width="1.2"/>
+                  <path d="M600,220 L680,215 L695,265 L665,295 L620,290 L595,258 Z" fill="#0d1e38" stroke="rgba(82,210,196,0.15)" stroke-width="1"/>
+                  <path d="M80,40 L175,35 L195,55 L205,88 L190,125 L165,145 L130,148 L95,125 L72,85 Z" fill="#101c38" stroke="rgba(74,143,255,0.45)" stroke-width="1.5"/>
+                  <text font-family="JetBrains Mono" font-size="7" fill="rgba(238,242,255,0.3)" text-anchor="middle" x="138" y="100">UNITED STATES</text>
+                  <text font-family="JetBrains Mono" font-size="7" fill="rgba(238,242,255,0.3)" text-anchor="middle" x="394" y="55">EUROPE</text>
+                  <text font-family="JetBrains Mono" font-size="7" fill="rgba(238,242,255,0.3)" text-anchor="middle" x="590" y="105">CHINA</text>
+                  <!-- Markers -->
+                  <g><circle cx="402" cy="52" r="14" fill="rgba(82,210,196,0.06)"/><circle cx="402" cy="52" r="7" fill="rgba(82,210,196,0.18)" stroke="#52d2c4" stroke-width="1.5"/><circle cx="402" cy="52" r="3" fill="#52d2c4"/></g>
+                  <g><circle cx="140" cy="90" r="14" fill="rgba(74,143,255,0.06)"/><circle cx="140" cy="90" r="7" fill="rgba(74,143,255,0.18)" stroke="#4a8fff" stroke-width="1.5"/><circle cx="140" cy="90" r="3" fill="#4a8fff"/></g>
+                  <g><circle cx="590" cy="98" r="14" fill="rgba(240,78,78,0.06)"/><circle cx="590" cy="98" r="7" fill="rgba(240,78,78,0.18)" stroke="#f04e4e" stroke-width="1.5"/><circle cx="590" cy="98" r="3" fill="#f04e4e"/></g>
+                  <g><circle cx="370" cy="42" r="5" fill="rgba(232,184,75,0.18)" stroke="#e8b84b" stroke-width="1.5"/><circle cx="370" cy="42" r="2" fill="#e8b84b"/></g>
+                  <g><circle cx="660" cy="85" r="5" fill="rgba(232,184,75,0.18)" stroke="#e8b84b" stroke-width="1.5"/><circle cx="660" cy="85" r="2" fill="#e8b84b"/></g>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Latest alerts -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">⚡ Latest Alerts</div>
+              <div class="topbar-chip chip-alert" style="font-size:8px;padding:2px 7px;">3 NEW</div>
+            </div>
+            <div class="card-body" style="padding:8px 16px;">
+              <div class="alert-item">
+                <div class="alert-stripe" style="background:var(--red)"></div>
+                <div>
+                  <div class="alert-title">EU AI Act — GPAI obligations active</div>
+                  <div class="alert-desc">Foundation model requirements now apply.</div>
+                  <div class="alert-meta"><span class="badge b-critical">CRITICAL</span><span class="alert-time">EU · 2025</span></div>
+                </div>
+              </div>
+              <div class="alert-item">
+                <div class="alert-stripe" style="background:var(--gold)"></div>
+                <div>
+                  <div class="alert-title">China CAC GenAI security assessments</div>
+                  <div class="alert-desc">Mandatory for foreign AI market access.</div>
+                  <div class="alert-meta"><span class="badge b-high">HIGH</span><span class="alert-time">China · 2024</span></div>
+                </div>
+              </div>
+              <div class="alert-item">
+                <div class="alert-stripe" style="background:var(--blue)"></div>
+                <div>
+                  <div class="alert-title">Canada AIDA advancing in Parliament</div>
+                  <div class="alert-desc">First horizontal AI law in North America.</div>
+                  <div class="alert-meta"><span class="badge b-medium">MEDIUM</span><span class="alert-time">Canada · 2024</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk panel -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">◬ Risk Intelligence Overview</div>
+            <div class="btn" onclick="navigate('index', document.querySelectorAll('.nav-item')[1])">Full Index →</div>
+          </div>
+          <div class="card-body grid g2">
+            <div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">🇪🇺 European Union</span><span class="prog-val" style="color:var(--red)">85</span></div><div class="prog-track"><div class="prog-fill" style="width:85%;background:var(--red);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">🇨🇳 China</span><span class="prog-val" style="color:var(--red)">91</span></div><div class="prog-track"><div class="prog-fill" style="width:91%;background:var(--red);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">🇺🇸 United States</span><span class="prog-val" style="color:var(--gold)">62</span></div><div class="prog-track"><div class="prog-fill" style="width:62%;background:var(--gold);"></div></div></div>
+            </div>
+            <div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">🇬🇧 United Kingdom</span><span class="prog-val" style="color:var(--blue)">42</span></div><div class="prog-track"><div class="prog-fill" style="width:42%;background:var(--blue);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">🇯🇵 Japan</span><span class="prog-val" style="color:var(--blue)">38</span></div><div class="prog-track"><div class="prog-fill" style="width:38%;background:var(--blue);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">🇸🇬 Singapore</span><span class="prog-val" style="color:var(--accent)">28</span></div><div class="prog-track"><div class="prog-fill" style="width:28%;background:var(--accent);"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ GOVERNANCE INDEX ══ -->
+    <div class="page" id="page-index">
+      <div class="page-wrap">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Euridium AI Governance Index</div>
+            <div class="page-subtitle">Proprietary risk scoring · Q1 2025 · 8 jurisdictions</div>
+          </div>
+          <div class="page-actions">
+            <div class="btn">⬇ Download PDF</div>
+            <div class="btn btn-primary">Subscribe for Monthly Updates</div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">◬ Risk Scores</div><div class="card-meta">Score / 100</div></div>
+            <div class="card-body">
+              <div class="index-row"><div class="index-flag">🇨🇳</div><div class="index-info"><div class="index-name">China</div><div class="index-track"><div class="index-fill" style="width:91%;background:var(--red);"></div></div></div><div class="index-score" style="color:var(--red);">91</div></div>
+              <div class="index-row"><div class="index-flag">🇪🇺</div><div class="index-info"><div class="index-name">European Union</div><div class="index-track"><div class="index-fill" style="width:85%;background:var(--red);"></div></div></div><div class="index-score" style="color:var(--red);">85</div></div>
+              <div class="index-row"><div class="index-flag">🇺🇸</div><div class="index-info"><div class="index-name">United States</div><div class="index-track"><div class="index-fill" style="width:62%;background:var(--gold);"></div></div></div><div class="index-score" style="color:var(--gold);">62</div></div>
+              <div class="index-row"><div class="index-flag">🇨🇦</div><div class="index-info"><div class="index-name">Canada</div><div class="index-track"><div class="index-fill" style="width:55%;background:var(--gold);"></div></div></div><div class="index-score" style="color:var(--gold);">55</div></div>
+              <div class="index-row"><div class="index-flag">🇬🇧</div><div class="index-info"><div class="index-name">United Kingdom</div><div class="index-track"><div class="index-fill" style="width:42%;background:var(--blue);"></div></div></div><div class="index-score" style="color:var(--blue);">42</div></div>
+              <div class="index-row"><div class="index-flag">🇯🇵</div><div class="index-info"><div class="index-name">Japan</div><div class="index-track"><div class="index-fill" style="width:38%;background:var(--blue);"></div></div></div><div class="index-score" style="color:var(--blue);">38</div></div>
+              <div class="index-row"><div class="index-flag">🇸🇬</div><div class="index-info"><div class="index-name">Singapore</div><div class="index-track"><div class="index-fill" style="width:28%;background:var(--accent);"></div></div></div><div class="index-score" style="color:var(--accent);">28</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">📋 Methodology</div></div>
+            <div class="card-body">
+              <p style="font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:16px;">The Euridium AI Governance Index scores jurisdictions across five dimensions, each weighted according to strategic impact for organizations deploying AI systems.</p>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">Regulatory Activity Volume</span><span class="prog-val" style="color:var(--accent)">30%</span></div><div class="prog-track"><div class="prog-fill" style="width:30%;background:var(--accent);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">Binding vs. Voluntary Nature</span><span class="prog-val" style="color:var(--accent)">25%</span></div><div class="prog-track"><div class="prog-fill" style="width:25%;background:var(--accent);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">Enforcement Mechanisms</span><span class="prog-val" style="color:var(--accent)">20%</span></div><div class="prog-track"><div class="prog-fill" style="width:20%;background:var(--accent);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">Geopolitical Positioning</span><span class="prog-val" style="color:var(--accent)">15%</span></div><div class="prog-track"><div class="prog-fill" style="width:15%;background:var(--accent);"></div></div></div>
+              <div class="prog-row"><div class="prog-header"><span class="prog-label">Market Access Implications</span><span class="prog-val" style="color:var(--accent)">10%</span></div><div class="prog-track"><div class="prog-fill" style="width:10%;background:var(--accent);"></div></div></div>
+              <div style="margin-top:16px;padding:12px 14px;background:rgba(82,210,196,0.05);border:1px solid rgba(82,210,196,0.15);border-radius:8px;">
+                <div style="font-family:var(--font-m);font-size:8.5px;color:var(--accent);letter-spacing:0.14em;margin-bottom:6px;">NEXT EDITION</div>
+                <div style="font-size:12px;color:var(--muted);">Q2 2025 — May 2025. Subscribe to receive it directly.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">📊 Key Findings — Q1 2025</div></div>
+          <div class="card-body">
+            <div class="grid g3">
+              <div style="padding:16px;background:rgba(240,78,78,0.05);border:1px solid rgba(240,78,78,0.15);border-radius:8px;">
+                <div style="font-family:var(--font-m);font-size:8.5px;color:var(--red);letter-spacing:0.14em;margin-bottom:8px;">CRITICAL RISK</div>
+                <div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px;">EU + China dominate</div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.6;">Both jurisdictions now operate binding, comprehensive AI governance frameworks with active enforcement mechanisms.</div>
+              </div>
+              <div style="padding:16px;background:rgba(232,184,75,0.05);border:1px solid rgba(232,184,75,0.15);border-radius:8px;">
+                <div style="font-family:var(--font-m);font-size:8.5px;color:var(--gold);letter-spacing:0.14em;margin-bottom:8px;">EMERGING</div>
+                <div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px;">US & Canada accelerating</div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.6;">Both countries are advancing horizontal AI legislation — expect significant score increases in Q2 2025.</div>
+              </div>
+              <div style="padding:16px;background:rgba(82,210,196,0.05);border:1px solid rgba(82,210,196,0.15);border-radius:8px;">
+                <div style="font-family:var(--font-m);font-size:8.5px;color:var(--accent);letter-spacing:0.14em;margin-bottom:8px;">STABLE</div>
+                <div style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:6px;">UK, Japan, Singapore</div>
+                <div style="font-size:12px;color:var(--muted);line-height:1.6;">Pro-innovation, principles-based approaches keeping risk scores lower — but watch for shift post-2025 elections.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ BLOG / INSIGHTS ══ -->
+    <div class="page" id="page-blog">
+      <div class="page-wrap">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Insights & Analysis</div>
+            <div class="page-subtitle">Strategic intelligence on AI governance · Published by Euridium</div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="blog-card">
+            <div class="blog-num">01</div>
+            <div style="flex:1;">
+              <div class="blog-category">EU AI ACT · ANALYSIS</div>
+              <div class="blog-title">What the GPAI obligations mean for AI startups in Europe</div>
+              <div class="blog-summary">With general-purpose AI model obligations now active under the EU AI Act, European AI startups face a new compliance reality. We break down what it means, who is affected, and what to do now.</div>
+              <div class="blog-meta"><span class="badge b-critical">CRITICAL</span><span class="blog-date">March 2025</span><span class="blog-date">· 8 min read</span></div>
+            </div>
+            <div class="blog-arrow">→</div>
+          </div>
+
+          <div class="blog-card">
+            <div class="blog-num">02</div>
+            <div style="flex:1;">
+              <div class="blog-category">GEOPOLITICS · INTELLIGENCE</div>
+              <div class="blog-title">The AI regulatory race: how EU, US and China are diverging</div>
+              <div class="blog-summary">Three major powers, three fundamentally different approaches to AI governance. Understanding the divergence is now a strategic imperative for any organization operating globally.</div>
+              <div class="blog-meta"><span class="badge b-high">HIGH</span><span class="blog-date">February 2025</span><span class="blog-date">· 12 min read</span></div>
+            </div>
+            <div class="blog-arrow">→</div>
+          </div>
+
+          <div class="blog-card">
+            <div class="blog-num">03</div>
+            <div style="flex:1;">
+              <div class="blog-category">MARKET INTELLIGENCE</div>
+              <div class="blog-title">Why AI governance intelligence is the next RegTech category</div>
+              <div class="blog-summary">The AI governance market is projected to reach $5.8B by 2029 at a 45% CAGR. We analyze what's driving demand, who the buyers are, and why no professional tool exists yet.</div>
+              <div class="blog-meta"><span class="badge b-medium">MEDIUM</span><span class="blog-date">January 2025</span><span class="blog-date">· 6 min read</span></div>
+            </div>
+            <div class="blog-arrow">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ABOUT ══ -->
+    <div class="page" id="page-about">
+      <div class="page-wrap">
+        <div class="page-header">
+          <div>
+            <div class="page-title">About Euridium Intelligence</div>
+            <div class="page-subtitle">Built at the intersection of law, policy and technology</div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-bottom:20px;align-items:start;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">👤 Founder</div></div>
+            <div class="card-body" style="display:flex;gap:20px;align-items:flex-start;">
+              <img src="9Z8A0709-modified.png" alt="Nicolas Heynderickx" class="about-photo" style="flex-shrink:0;">
+              <div>
+                <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;">Nicolas Heynderickx</div>
+                <div style="font-family:var(--font-m);font-size:9.5px;color:var(--accent);letter-spacing:0.12em;margin-bottom:14px;">FOUNDER & CEO</div>
+                <p style="font-size:12.5px;color:var(--muted);line-height:1.7;margin-bottom:12px;">Background in international relations, European studies and human rights, with a focus on AI governance and European regulation.</p>
+                <p style="font-size:12.5px;color:var(--muted);line-height:1.7;">Euridium was born from the observation that the gap between regulatory complexity and organizational intelligence is growing faster than any team can manage manually.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;">
+                  <span style="padding:3px 9px;background:var(--raised);border:1px solid var(--border);border-radius:4px;font-family:var(--font-m);font-size:9px;color:var(--muted);">AI Governance</span>
+                  <span style="padding:3px 9px;background:var(--raised);border:1px solid var(--border);border-radius:4px;font-family:var(--font-m);font-size:9px;color:var(--muted);">EU AI Act</span>
+                  <span style="padding:3px 9px;background:var(--raised);border:1px solid var(--border);border-radius:4px;font-family:var(--font-m);font-size:9px;color:var(--muted);">International Relations</span>
+                  <span style="padding:3px 9px;background:var(--raised);border:1px solid var(--border);border-radius:4px;font-family:var(--font-m);font-size:9px;color:var(--muted);">European Studies</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">🎯 Mission</div></div>
+              <div class="card-body">
+                <p style="font-size:13px;color:var(--muted);line-height:1.75;font-style:italic;border-left:2px solid var(--accent);padding-left:14px;">"The question is no longer whether AI will be regulated. The question is who will help organizations understand it."</p>
+              </div>
+            </div>
+            <div style="padding:18px 20px;background:rgba(82,210,196,0.05);border:1px solid rgba(82,210,196,0.18);border-radius:10px;">
+              <div style="font-family:var(--font-m);font-size:8.5px;color:var(--accent);letter-spacing:0.16em;margin-bottom:8px;">🏛 FARI AI ACCELERATOR · COHORT 2025</div>
+              <div style="font-size:12.5px;color:var(--muted);line-height:1.65;">Supported by FARI — AI for the Common Good Institute, the joint AI research institute of ULB and VUB in Brussels.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">⬡ Our Principles</div></div>
+          <div class="card-body grid g3">
+            <div><div style="font-family:var(--font-m);font-size:22px;color:rgba(82,210,196,0.15);margin-bottom:10px;">01</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Intelligence over information</div><div style="font-size:12px;color:var(--muted);line-height:1.65;">We produce structured strategic intelligence that enables decisions, not just information aggregation.</div></div>
+            <div><div style="font-family:var(--font-m);font-size:22px;color:rgba(82,210,196,0.15);margin-bottom:10px;">02</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Anticipation over reaction</div><div style="font-size:12px;color:var(--muted);line-height:1.65;">Our goal is to tell organizations what will happen tomorrow, not what happened yesterday.</div></div>
+            <div><div style="font-family:var(--font-m);font-size:22px;color:rgba(82,210,196,0.15);margin-bottom:10px;">03</div><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px;">Precision over coverage</div><div style="font-size:12px;color:var(--muted);line-height:1.65;">We would rather be the definitive source on AI governance than a broad aggregator of everything.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONTACT ══ -->
+    <div class="page" id="page-contact">
+      <div class="page-wrap">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Get in Touch</div>
+            <div class="page-subtitle">Early adopters · Investors · Partners · Co-founders</div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="align-items:start;">
+          <div class="card">
+            <div class="card-header"><div class="card-title">✉ Send a Message</div></div>
+            <div class="card-body">
+              <div class="contact-form">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" class="form-input" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Organization</label>
+                  <input type="text" class="form-input" placeholder="Your company or institution">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-input" placeholder="your@organization.com">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Message</label>
+                  <textarea class="form-textarea" placeholder="Tell us about your interest in Euridium..."></textarea>
+                </div>
+                <button class="form-submit" onclick="handleContact()">SEND MESSAGE →</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card">
+              <div class="card-header"><div class="card-title">📬 Direct Contact</div></div>
+              <div class="card-body">
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                  <div style="display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">✉</div><div><div style="font-size:12px;font-weight:600;color:var(--text);">Email</div><a href="mailto:nicolas@euridium.eu" style="font-family:var(--font-m);font-size:11px;color:var(--accent);text-decoration:none;">nicolas@euridium.eu</a></div></div>
+                  <div style="display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">🌐</div><div><div style="font-size:12px;font-weight:600;color:var(--text);">Website</div><a href="https://euridium.eu" target="_blank" style="font-family:var(--font-m);font-size:11px;color:var(--accent);text-decoration:none;">euridium.eu</a></div></div>
+                  <div style="display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">💼</div><div><div style="font-size:12px;font-weight:600;color:var(--text);">LinkedIn</div><a href="https://www.linkedin.com/company/euridium-intelligence" target="_blank" style="font-family:var(--font-m);font-size:11px;color:var(--accent);text-decoration:none;">linkedin.com/company/euridium-intelligence</a></div></div>
+                  <div style="display:flex;align-items:center;gap:12px;"><div style="font-size:20px;">📍</div><div><div style="font-size:12px;font-weight:600;color:var(--text);">Location</div><div style="font-family:var(--font-m);font-size:11px;color:var(--muted);">Brussels, Belgium</div></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="card-title">🚀 We are looking for</div></div>
+              <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
+                <div style="padding:10px 12px;background:rgba(82,210,196,0.05);border:1px solid rgba(82,210,196,0.15);border-radius:7px;font-size:12px;color:var(--muted);">🧑‍💻 <strong style="color:var(--text);">Technical Co-founder / CTO</strong> — Full-stack or ML engineer</div>
+                <div style="padding:10px 12px;background:rgba(232,184,75,0.05);border:1px solid rgba(232,184,75,0.15);border-radius:7px;font-size:12px;color:var(--muted);">💼 <strong style="color:var(--text);">Pilot clients</strong> — AI startups, consulting firms, institutions</div>
+                <div style="padding:10px 12px;background:rgba(74,143,255,0.05);border:1px solid rgba(74,143,255,0.15);border-radius:7px;font-size:12px;color:var(--muted);">💰 <strong style="color:var(--text);">Angel investors</strong> — Pre-seed €150K–€300K</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// Clock
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toLocaleDateString('en-GB') + ' · ' + now.toTimeString().slice(0,5);
+}, 1000);
+
+// Navigation
+function navigate(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+  const titles = {home:'Home',index:'Governance Index',blog:'Insights',about:'About',contact:'Contact'};
+  document.getElementById('bc-current').textContent = titles[page] || page;
+}
+
+// Contact form
+function handleContact() {
+  const inputs = document.querySelectorAll('.form-input, .form-textarea');
+  let valid = true;
+  inputs.forEach(i => { if (!i.value.trim()) valid = false; });
+  if (!valid) { alert('Please fill in all fields.'); return; }
+  document.querySelector('.form-submit').textContent = '✓ MESSAGE SENT';
+  document.querySelector('.form-submit').style.background = 'rgba(46,204,113,0.15)';
+  document.querySelector('.form-submit').style.borderColor = 'rgba(46,204,113,0.3)';
+  document.querySelector('.form-submit').style.color = '#2ecc71';
+  inputs.forEach(i => i.value = '');
+}
+</script>
+</body>
+</html>
