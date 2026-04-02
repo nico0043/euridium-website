@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" width="400" height="480">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Syne:wght@800&amp;family=JetBrains+Mono:wght@500&amp;display=swap');
+    </style>
+  </defs>
+
+  <!-- Background transparent -->
+
+  <!-- Outer hexagon -->
+  <polygon
+    points="200,60 268,99 268,177 200,216 132,177 132,99"
+    fill="none"
+    stroke="#52d2c4"
+    stroke-width="2.5"
+  />
+
+  <!-- Inner hexagon (subtle) -->
+  <polygon
+    points="200,82 236,102 236,142 200,162 164,142 164,102"
+    fill="none"
+    stroke="#52d2c4"
+    stroke-width="0.8"
+    opacity="0.35"
+  />
+
+  <!-- E letterform -->
+  <!-- Horizontal bars -->
+  <line x1="172" y1="108" x2="228" y2="108" stroke="#52d2c4" stroke-width="5" stroke-linecap="round"/>
+  <line x1="172" y1="138" x2="218" y2="138" stroke="#52d2c4" stroke-width="5" stroke-linecap="round"/>
+  <line x1="172" y1="168" x2="228" y2="168" stroke="#52d2c4" stroke-width="5" stroke-linecap="round"/>
+  <!-- Vertical bar -->
+  <line x1="172" y1="108" x2="172" y2="168" stroke="#52d2c4" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Node dots at hex vertices -->
+  <circle cx="200" cy="60"  r="5" fill="#52d2c4"/>
+  <circle cx="268" cy="99"  r="5" fill="#52d2c4"/>
+  <circle cx="268" cy="177" r="5" fill="#52d2c4"/>
+  <circle cx="200" cy="216" r="5" fill="#52d2c4"/>
+  <circle cx="132" cy="177" r="5" fill="#52d2c4"/>
+  <circle cx="132" cy="99"  r="5" fill="#52d2c4"/>
+
+  <!-- Connector lines from vertices toward center (subtle) -->
+  <line x1="200" y1="60"  x2="200" y2="82"  stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+  <line x1="268" cy="99"  x2="236" y2="102" stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+  <line x1="268" y1="177" x2="236" y2="142" stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+  <line x1="200" y1="216" x2="200" y2="162" stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+  <line x1="132" y1="177" x2="164" y2="142" stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+  <line x1="132" y1="99"  x2="164" y2="102" stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- Divider line -->
+  <line x1="120" y1="256" x2="280" y2="256" stroke="#52d2c4" stroke-width="0.8" opacity="0.3"/>
+
+  <!-- EURIDIUM wordmark -->
+  <text
+    x="200" y="302"
+    text-anchor="middle"
+    font-family="'Syne', Georgia, sans-serif"
+    font-size="36"
+    font-weight="800"
+    fill="#eef2ff"
+    letter-spacing="4"
+  >EURIDIUM</text>
+
+  <!-- INTELLIGENCE submark -->
+  <text
+    x="200" y="334"
+    text-anchor="middle"
+    font-family="'JetBrains Mono', 'Courier New', monospace"
+    font-size="13"
+    font-weight="500"
+    fill="#52d2c4"
+    letter-spacing="8"
+  >INTELLIGENCE</text>
+
+  <!-- Tagline -->
+  <text
+    x="200" y="368"
+    text-anchor="middle"
+    font-family="'JetBrains Mono', 'Courier New', monospace"
+    font-size="9"
+    fill="#3d4f6b"
+    letter-spacing="3"
+  >AI GOVERNANCE PLATFORM</text>
+
+</svg>
